@@ -51,7 +51,11 @@ export default function Login({ login, goToRegister }) {
       }
     } catch (err) {
       console.error("Login error:", err?.response || err);
-      const message = err?.response?.data?.message || err?.response?.data || "Login failed. Backend not reachable.";
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        err?.message ||
+        "Login failed. Backend not reachable.";
       notify(message, "error");
     }
   };
