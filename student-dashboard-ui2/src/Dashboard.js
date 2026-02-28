@@ -49,6 +49,7 @@ import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const ATTENDANCE_ALERT_LIMIT = 55;
+const BRANCH_OPTIONS = ["CSE", "ECE", "EEE", "MECH", "CIVIL", "AI", "AI-DS", "AIML", "IT"];
 
 const getAttendance = (student) => Number(student.attendancePercentage ?? 0);
 
@@ -79,7 +80,7 @@ export default function Dashboard({ logout }) {
 
   const [editId, setEditId] = useState(null);
   const [avgAttendance, setAvgAttendance] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -161,6 +162,16 @@ export default function Dashboard({ logout }) {
     fontWeight: 700,
     boxShadow: "none"
   };
+
+  const attendanceValue = Number(form.attendancePercentage || 0);
+  const formCompletion = [
+    form.id,
+    form.name,
+    form.branch,
+    form.studentYear,
+    form.attendancePercentage
+  ].filter((v) => String(v ?? "").trim() !== "").length;
+  const completionPercent = (formCompletion / 5) * 100;
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
@@ -367,17 +378,6 @@ export default function Dashboard({ logout }) {
     });
   };
 
-  const studentTrend = useMemo(() => {
-    if (!studentDrawer.student) return [];
-    const base = getAttendance(studentDrawer.student);
-    return [
-      { label: "Week 1", value: Math.max(0, Math.min(100, base - 6)) },
-      { label: "Week 2", value: Math.max(0, Math.min(100, base - 3)) },
-      { label: "Week 3", value: Math.max(0, Math.min(100, base + 1)) },
-      { label: "Week 4", value: Math.max(0, Math.min(100, base)) }
-    ];
-  }, [studentDrawer.student]);
-
   const editStudent = (student) => {
     if (!isAdmin) {
       notify("Only ADMIN can edit students.", "warning");
@@ -392,6 +392,17 @@ export default function Dashboard({ logout }) {
       attendancePercentage: student.attendancePercentage || ""
     });
     setCurrentPage("dashboard");
+  };
+
+  const fillDemoData = () => {
+    const demoId = Date.now().toString().slice(-4);
+    setForm({
+      id: demoId,
+      name: "New Student",
+      branch: "CSE",
+      studentYear: "1",
+      attendancePercentage: "75"
+    });
   };
 
   const navItems = [
@@ -627,55 +638,145 @@ export default function Dashboard({ logout }) {
           {currentPage === "dashboard" && (
             <Box sx={{ display: "grid", gridTemplateColumns: "1fr", gap: 3, alignItems: "stretch", width: "100%" }}>
               <Card sx={cardSx}>
-                <CardContent>
-                  <Typography variant="h5">{editId ? "Update Student" : "Add Student"}</Typography>
+                {isAdmin ? (
+                  <CardContent>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Typography variant="h5">{editId ? "Update Student" : "Add Student"}</Typography>
+                      <Chip
+                        label={`Form ${Math.round(completionPercent)}% complete`}
+                        color={completionPercent === 100 ? "success" : "info"}
+                        variant="outlined"
+                      />
+                    </Box>
+                    <Typography variant="body2" sx={{ color: darkMode ? "#cbd5e1" : "text.secondary", mb: 1.3 }}>
+                      Fill the details below to create a student record with attendance tracking.
+                    </Typography>
 
-                  <TextField
-                    label="Student ID"
-                    fullWidth
-                    margin="normal"
-                    sx={formFieldSx}
-                    value={form.id || ""}
-                    onChange={(e) => setForm({ ...form, id: e.target.value.replace(/\D/g, "") })}
-                  />
-                  <TextField
-                    label="Name"
-                    fullWidth
-                    margin="normal"
-                    sx={formFieldSx}
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
-                  <TextField
-                    label="Branch"
-                    fullWidth
-                    margin="normal"
-                    sx={formFieldSx}
-                    value={form.branch}
-                    onChange={(e) => setForm({ ...form, branch: e.target.value })}
-                  />
-                  <TextField
-                    label="Year"
-                    fullWidth
-                    margin="normal"
-                    sx={formFieldSx}
-                    value={form.studentYear}
-                    onChange={(e) => setForm({ ...form, studentYear: e.target.value })}
-                  />
-                  <TextField
-                    label="Attendance %"
-                    type="number"
-                    fullWidth
-                    margin="normal"
-                    sx={formFieldSx}
-                    value={form.attendancePercentage}
-                    onChange={(e) => setForm({ ...form, attendancePercentage: e.target.value })}
-                  />
+                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 1.5 }}>
+                      <TextField
+                        label="Student ID"
+                        fullWidth
+                        sx={formFieldSx}
+                        value={form.id || ""}
+                        onChange={(e) => setForm({ ...form, id: e.target.value.replace(/\D/g, "") })}
+                        helperText="Numeric ID only"
+                      />
+                      <TextField
+                        label="Student Name"
+                        fullWidth
+                        sx={formFieldSx}
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      />
+                      <TextField
+                        select
+                        label="Branch"
+                        fullWidth
+                        sx={formFieldSx}
+                        value={form.branch}
+                        onChange={(e) => setForm({ ...form, branch: e.target.value })}
+                      >
+                        {BRANCH_OPTIONS.map((branch) => (
+                          <MenuItem key={branch} value={branch}>
+                            {branch}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                      <TextField
+                        select
+                        label="Year"
+                        fullWidth
+                        sx={formFieldSx}
+                        value={form.studentYear}
+                        onChange={(e) => setForm({ ...form, studentYear: e.target.value })}
+                      >
+                        <MenuItem value="1">1st Year</MenuItem>
+                        <MenuItem value="2">2nd Year</MenuItem>
+                        <MenuItem value="3">3rd Year</MenuItem>
+                        <MenuItem value="4">4th Year</MenuItem>
+                      </TextField>
+                    </Box>
 
-                  <Button variant="contained" sx={{ marginTop: 2 }} onClick={saveStudent} disabled={!isAdmin}>
-                    {editId ? "Update Student" : "Add Student"}
-                  </Button>
-                </CardContent>
+                    <Box sx={{ mt: 2.2 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.6 }}>
+                        <Typography variant="body2">Attendance</Typography>
+                        <Chip
+                          label={`${attendanceValue}%`}
+                          size="small"
+                          color={attendanceValue < ATTENDANCE_ALERT_LIMIT ? "warning" : "success"}
+                        />
+                      </Box>
+                      <Slider
+                        value={Math.max(0, Math.min(100, attendanceValue))}
+                        onChange={(_, value) => setForm({ ...form, attendancePercentage: String(value) })}
+                        min={0}
+                        max={100}
+                        valueLabelDisplay="auto"
+                      />
+                      <LinearProgress
+                        variant="determinate"
+                        value={Math.max(0, Math.min(100, attendanceValue))}
+                        color={attendanceValue < ATTENDANCE_ALERT_LIMIT ? "warning" : "primary"}
+                        sx={{ mt: 1, height: 8, borderRadius: 4 }}
+                      />
+                    </Box>
+
+                    <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+                      <Button variant="contained" onClick={saveStudent} disabled={!isAdmin}>
+                        {editId ? "Update Student" : "Add Student"}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          setEditId(null);
+                          setForm({ id: "", name: "", branch: "", studentYear: "", attendancePercentage: "" });
+                        }}
+                      >
+                        Clear
+                      </Button>
+                      <Button variant="text" onClick={fillDemoData}>
+                        Fill Demo
+                      </Button>
+                    </Box>
+                  </CardContent>
+                ) : (
+                  <CardContent>
+                    <Typography variant="h5">Students List</Typography>
+                    <Typography variant="body2" sx={{ color: darkMode ? "#cbd5e1" : "text.secondary", mb: 2 }}>
+                      Student role can view records only.
+                    </Typography>
+                    <Table sx={tableSx}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>ID</TableCell>
+                          <TableCell>Name</TableCell>
+                          <TableCell>Branch</TableCell>
+                          <TableCell>Year</TableCell>
+                          <TableCell>Attendance</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {students.map((s) => (
+                          <TableRow key={`dashboard-student-${s.id}`} sx={rowSx}>
+                            <TableCell>{s.id}</TableCell>
+                            <TableCell>{s.name}</TableCell>
+                            <TableCell>{s.branch}</TableCell>
+                            <TableCell>{s.studentYear}</TableCell>
+                            <TableCell sx={{ minWidth: 170 }}>
+                              {getAttendance(s)} %
+                              <LinearProgress
+                                variant="determinate"
+                                value={getAttendance(s)}
+                                color={getAttendance(s) < ATTENDANCE_ALERT_LIMIT ? "warning" : "primary"}
+                                sx={{ mt: 1, height: 8, borderRadius: 5 }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                )}
               </Card>
 
               <Card sx={cardSx}>
@@ -902,7 +1003,7 @@ export default function Dashboard({ logout }) {
                         <TableCell>ID</TableCell>
                         <TableCell>Name</TableCell>
                         <TableCell>Attendance</TableCell>
-                        <TableCell>Actions</TableCell>
+                        {isAdmin && <TableCell>Actions</TableCell>}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -923,59 +1024,59 @@ export default function Dashboard({ logout }) {
                               sx={{ mt: 1, height: 8, borderRadius: 5 }}
                             />
                           </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                startIcon={<EditRoundedIcon fontSize="small" />}
-                                sx={{
-                                  ...actionBtnSx,
-                                  color: darkMode ? "#93c5fd" : "#1565c0",
-                                  borderColor: darkMode ? "rgba(147,197,253,0.55)" : "#90caf9",
-                                  backgroundColor: darkMode ? "rgba(37,99,235,0.14)" : "#e3f2fd",
-                                  "&:hover": {
-                                    borderColor: darkMode ? "#93c5fd" : "#42a5f5",
-                                    backgroundColor: darkMode ? "rgba(37,99,235,0.24)" : "#dbeafe"
-                                  }
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  editStudent(s);
-                                }}
-                                disabled={!isAdmin}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                startIcon={<DeleteOutlineRoundedIcon fontSize="small" />}
-                                sx={{
-                                  ...actionBtnSx,
-                                  color: darkMode ? "#fca5a5" : "#c62828",
-                                  borderColor: darkMode ? "rgba(252,165,165,0.55)" : "#ef9a9a",
-                                  backgroundColor: darkMode ? "rgba(220,38,38,0.14)" : "#ffebee",
-                                  "&:hover": {
-                                    borderColor: darkMode ? "#fca5a5" : "#ef5350",
-                                    backgroundColor: darkMode ? "rgba(220,38,38,0.24)" : "#ffe4e6"
-                                  }
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openDeleteDialog(s);
-                                }}
-                                disabled={!isAdmin}
-                              >
-                                Delete
-                              </Button>
-                            </Box>
-                          </TableCell>
+                          {isAdmin && (
+                            <TableCell>
+                              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  startIcon={<EditRoundedIcon fontSize="small" />}
+                                  sx={{
+                                    ...actionBtnSx,
+                                    color: darkMode ? "#93c5fd" : "#1565c0",
+                                    borderColor: darkMode ? "rgba(147,197,253,0.55)" : "#90caf9",
+                                    backgroundColor: darkMode ? "rgba(37,99,235,0.14)" : "#e3f2fd",
+                                    "&:hover": {
+                                      borderColor: darkMode ? "#93c5fd" : "#42a5f5",
+                                      backgroundColor: darkMode ? "rgba(37,99,235,0.24)" : "#dbeafe"
+                                    }
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    editStudent(s);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  startIcon={<DeleteOutlineRoundedIcon fontSize="small" />}
+                                  sx={{
+                                    ...actionBtnSx,
+                                    color: darkMode ? "#fca5a5" : "#c62828",
+                                    borderColor: darkMode ? "rgba(252,165,165,0.55)" : "#ef9a9a",
+                                    backgroundColor: darkMode ? "rgba(220,38,38,0.14)" : "#ffebee",
+                                    "&:hover": {
+                                      borderColor: darkMode ? "#fca5a5" : "#ef5350",
+                                      backgroundColor: darkMode ? "rgba(220,38,38,0.24)" : "#ffe4e6"
+                                    }
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openDeleteDialog(s);
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </Box>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))}
                       {filteredStudents.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={4} sx={{ textAlign: "center", py: 3 }}>
+                          <TableCell colSpan={isAdmin ? 4 : 3} sx={{ textAlign: "center", py: 3 }}>
                             No students match the selected filters.
                           </TableCell>
                         </TableRow>
@@ -1060,23 +1161,6 @@ export default function Dashboard({ logout }) {
               </CardContent>
             </Card>
 
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              Attendance Trend (Last 4 Weeks)
-            </Typography>
-            {studentTrend.map((point) => (
-              <Box key={point.label} sx={{ mb: 1.1 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.4 }}>
-                  <Typography variant="body2">{point.label}</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>{point.value}%</Typography>
-                </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={point.value}
-                  color={point.value < ATTENDANCE_ALERT_LIMIT ? "warning" : "primary"}
-                  sx={{ height: 7, borderRadius: 5 }}
-                />
-              </Box>
-            ))}
           </Box>
         )}
       </Drawer>

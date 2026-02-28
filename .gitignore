@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Environment files / secrets
+.env
+**/.env
+*.local
+
+# Backend build output
+dashboard/target/
+
+# Frontend build output / deps
+student-dashboard-ui2/node_modules/
+student-dashboard-ui2/build/
+
+# Logs
+*.log
