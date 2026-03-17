@@ -1,17 +1,33 @@
-# macOS
-.DS_Store
+# Playwright browser binaries
+.playwright-browsers/
 
-# Environment files / secrets
-.env
-**/.env
-*.local
-
-# Backend build output
-dashboard/target/
-
-# Frontend build output / deps
+# Node.js / React (inside student-dashboard-ui2)
 student-dashboard-ui2/node_modules/
 student-dashboard-ui2/build/
+student-dashboard-ui2/.pnp
+student-dashboard-ui2/.pnp.js
+student-dashboard-ui2/coverage/
+student-dashboard-ui2/.env.local
+student-dashboard-ui2/.env.development.local
+student-dashboard-ui2/.env.test.local
+student-dashboard-ui2/.env.production.local
 
-# Logs
-*.log
+# Java / Maven (inside dashboard)
+dashboard/target/
+dashboard/pom.xml.tag
+dashboard/pom.xml.releaseBackup
+dashboard/pom.xml.versionsBackup
+dashboard/pom.xml.next
+dashboard/release.properties
+dashboard/dependency-reduced-pom.xml
+dashboard/buildNumber.properties
+dashboard/.mvn/timing.properties
+dashboard/hs_err_pid*
+
+# IDE files
+.idea/
+*.iml
+*.iws
+
+# OS generated files
+.DS_Store

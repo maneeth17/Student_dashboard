@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard Architecture Poster</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #1f2a44;
+      --muted: #5f6d8a;
+      --line: #d9e0f0;
+      --blue: #4a67c2;
+      --orange: #f09c45;
+      --cyan: #4e9ad8;
+      --green: #88b95a;
+      --purple: #5f5fb4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #eef2fb 0%, #e9eff9 100%);
+      font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+      color: var(--ink);
+    }
+    .poster {
+      width: 2600px;
+      min-height: 1800px;
+      margin: 0 auto;
+      padding: 44px 48px 54px;
+      background: var(--bg);
+    }
+    .title {
+      text-align: center;
+      font-size: 64px;
+      font-weight: 800;
+      color: #37539f;
+      margin: 4px 0 26px;
+      letter-spacing: 0.8px;
+    }
+    .row {
+      display: grid;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .row.top { grid-template-columns: 2.2fr 1fr; }
+    .row.bottom { grid-template-columns: 1.5fr 1.3fr 1fr; }
+
+    .panel {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 8px 20px rgba(34, 66, 136, 0.08);
+    }
+    .panel h2 {
+      margin: 4px 0 16px;
+      font-size: 36px;
+      color: #334c95;
+      letter-spacing: 0.3px;
+    }
+
+    .screens {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .screen {
+      border: 2px solid #ced8ef;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .screen .bar {
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      font-size: 26px;
+      padding: 10px 14px;
+      letter-spacing: 0.3px;
+    }
+    .screen img {
+      width: 100%;
+      height: 360px;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+    }
+
+    .layer {
+      border-radius: 16px;
+      padding: 14px;
+      color: #fff;
+      margin-bottom: 12px;
+      box-shadow: inset 0 -5px rgba(0, 0, 0, 0.11);
+    }
+    .layer h3 {
+      margin: 2px 0 10px;
+      font-size: 30px;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+    .chips {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+    .chip {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .orange { background: var(--orange); }
+    .cyan { background: var(--cyan); }
+    .green { background: var(--green); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 22px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    th, td {
+      border: 1px solid #cbd4eb;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #5f7ac7;
+      color: #fff;
+      font-size: 24px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .step {
+      font-size: 30px;
+      color: #2b3f7f;
+      font-weight: 700;
+      line-height: 1.24;
+    }
+
+    .stack {
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .box {
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 27px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: inset 0 -6px rgba(0,0,0,0.12);
+    }
+    .b1 { background: #6a84d1; }
+    .b2 { background: #6aaad8; }
+    .b3 { background: #8abf5d; }
+    .b4 { background: #f0a04f; }
+    .b5 { background: #5f5fb4; }
+
+    .footer-title {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 30px;
+      color: #2c458a;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 21px;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="poster">
+    <div class="title">Student Dashboard (Spring Boot + React) Prototype</div>
+
+    <div class="row top">
+      <section class="panel">
+        <h2>UI Screens</h2>
+        <div class="screens">
+          <div class="screen">
+            <div class="bar">Login Page</div>
+            <img src="login-screen.png" alt="Login screen" />
+          </div>
+          <div class="screen">
+            <div class="bar">Register Page</div>
+            <img src="register-screen.png" alt="Register screen" />
+          </div>
+          <div class="screen">
+            <div class="bar">Dashboard</div>
+            <img src="dashboard-screen.png" alt="Dashboard screen" />
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Backend Structure</h2>
+
+        <div class="layer orange">
+          <h3>Controller Layer</h3>
+          <div class="chips">
+            <div class="chip">AuthController</div>
+            <div class="chip">StudentController</div>
+            <div class="chip">UserController</div>
+            <div class="chip">GlobalExceptionHandler</div>
+          </div>
+        </div>
+
+        <div class="layer cyan">
+          <h3>Security Layer</h3>
+          <div class="chips">
+            <div class="chip">SecurityConfig</div>
+            <div class="chip">JwtAuthFilter</div>
+            <div class="chip">JwtService</div>
+            <div class="chip">CustomUserDetailsService</div>
+          </div>
+        </div>
+
+        <div class="layer green">
+          <h3>Repository Layer</h3>
+          <div class="chips">
+            <div class="chip">StudentRepository</div>
+            <div class="chip">UserRepository</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="row bottom">
+      <section class="panel">
+        <h2>Database Design</h2>
+
+        <table>
+          <thead>
+            <tr><th colspan="4">Users Table</th></tr>
+            <tr><th>id</th><th>username</th><th>password</th><th>role</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>BIGINT</td><td>VARCHAR</td><td>VARCHAR</td><td>ADMIN/STUDENT</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <thead>
+            <tr><th colspan="5">Students Table</th></tr>
+            <tr><th>id</th><th>name</th><th>branch</th><th>student_year</th><th>attendance_percentage</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>BIGINT</td><td>VARCHAR</td><td>VARCHAR</td><td>INT(1-4)</td><td>DOUBLE(0-100)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>Architecture Overview</h2>
+        <div class="stack">
+          <div class="box b1">React UI (MUI) + Axios</div>
+          <div class="box b2">REST API Endpoints + JWT Auth</div>
+          <div class="box b3">JPA Repository Layer</div>
+          <div class="box b4">MySQL Database</div>
+          <div class="box b5">Render/Vercel Deploy + Env Config</div>
+        </div>
+        <div class="subtle">Token flow: Browser localStorage -> Authorization: Bearer token -> JwtAuthFilter</div>
+      </section>
+
+      <section class="panel">
+        <h2>System Flow</h2>
+        <div class="flow">
+          <div class="step">1. User Registration (`/auth/register`)</div>
+          <div class="step">2. User Login (`/auth/login`, JWT issued)</div>
+          <div class="step">3. Dashboard Data Fetch (`/api/students`)</div>
+          <div class="step">4. CRUD by ADMIN role only</div>
+          <div class="step">5. MySQL persistence via JPA repositories</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer-title">Student Dashboard Full Stack Architecture Sheet</div>
+  </div>
+</body>
+</html>

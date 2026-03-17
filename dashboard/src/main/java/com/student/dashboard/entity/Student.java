@@ -1,19 +1,15 @@
 package com.student.dashboard.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "students")
 public class Student {
 
     @Id
-    @NotNull(message = "Student ID is required")
     private Long id;
 
     @NotBlank(message = "Name is required")
@@ -27,10 +23,7 @@ public class Student {
     private int studentYear;
 
     @Column(name = "attendance_percentage")
-    @NotNull(message = "Attendance percentage is required")
-    @DecimalMin(value = "0.0", message = "Attendance must be >= 0")
-    @DecimalMax(value = "100.0", message = "Attendance must be <= 100")
-    private Double attendancePercentage;
+    private Double attendancePercentage = 0.0;
 
     public Student() {}
 
@@ -38,9 +31,11 @@ public class Student {
         this.name = name;
         this.branch = branch;
         this.studentYear = studentYear;
+        this.attendancePercentage = 0.0;
     }
 
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

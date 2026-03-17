@@ -1,36 +1,54 @@
 package com.student.dashboard.controller;
 
+import com.student.dashboard.dto.StudentImportResponse;
+import com.student.dashboard.dto.StudentResponse;
 import com.student.dashboard.entity.Student;
 import com.student.dashboard.repository.StudentRepository;
+import com.student.dashboard.service.AttendanceService;
+import com.student.dashboard.service.StudentCsvImportService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/students")
 public class StudentController {
 
     private final StudentRepository repository;
+    private final AttendanceService attendanceService;
+    private final StudentCsvImportService studentCsvImportService;
 
-    public StudentController(StudentRepository repository) {
+    public StudentController(
+            StudentRepository repository,
+            AttendanceService attendanceService,
+            StudentCsvImportService studentCsvImportService
+    ) {
         this.repository = repository;
+        this.attendanceService = attendanceService;
+        this.studentCsvImportService = studentCsvImportService;
     }
 
     // GET all students
     @GetMapping
-    public List<Student> getAllStudents() {
-        return repository.findAll();
+    public List<StudentResponse> getAllStudents() {
+        return repository.findAll().stream()
+                .map(student -> new StudentResponse(student, attendanceService.buildSummary(student)))
+                .collect(Collectors.toList());
     }
 
     // GET student by id
     @GetMapping("/{id}")
-    public Optional<Student> getStudentById(@PathVariable Long id) {
-        return repository.findById(id);
+    public StudentResponse getStudentById(@PathVariable Long id) {
+        Student student = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
+        return new StudentResponse(student, attendanceService.buildSummary(student));
     }
 
     // GET average attendance of all students
@@ -58,7 +76,17 @@ public class StudentController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public Student addStudent(@Valid @RequestBody Student student) {
+        if (student.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Student ID is required");
+        }
+        student.setAttendancePercentage(0.0);
         return repository.save(student);
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasRole('ADMIN')")
+    public StudentImportResponse importStudents(@RequestParam("file") MultipartFile file) {
+        return studentCsvImportService.importCsv(file);
     }
 
     // UPDATE student (ADMIN only)
@@ -72,7 +100,6 @@ public class StudentController {
         student.setName(studentDetails.getName());
         student.setBranch(studentDetails.getBranch());
         student.setStudentYear(studentDetails.getStudentYear());
-        student.setAttendancePercentage(studentDetails.getAttendancePercentage());
 
         return repository.save(student);
     }
